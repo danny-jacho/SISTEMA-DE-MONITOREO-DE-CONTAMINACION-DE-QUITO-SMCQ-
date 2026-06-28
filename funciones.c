@@ -15,10 +15,10 @@ char nameContaminantes [CONTAMINANTES][10] =
 {"PM25", "NO2", "SO2", "CO2"};
 
 char recomContaminantes[CONTAMINANTES][100] =
-    {"Evitar actividades al aire libre",                // PM2.5
-    "Reducir tráfico vehicular",                        //NO2
+    {"Evitar actividades al aire libre",                //PM2.5
+    "Reducir trafico vehicular",                        //NO2
     "Controlar emisiones industriales",                 //SO2
-    "Reducir congestión y mejorar ventilación urbana"}; //CO2
+    "Reducir congestion y mejorar ventilacion urbana"}; //CO2
 
 
 void leerCadena(char *cadena, int n)
@@ -126,6 +126,13 @@ void crear()
         printf("\n-------------------------------------------------------------------------------------\n");
 
     }
+    
+    for (int c = 0; c < CONTAMINANTES; c++)
+    {
+        zona.promedio[c] = 0;
+        zona.prediccion[c] = 0;
+        strcpy(zona.estado[c], "PENDIENTE");
+    }
     guardar(&zona);
 
     printf("¿Desea ver las recomendaciones? 1.SI/2.NO");
@@ -147,16 +154,9 @@ void guardar(ZONA *zona)
         return;
     }
 
-    long pos = ftell(f);
     fwrite(zona, sizeof(ZONA), 1, f);
-    posZonas[contZonas -1] = pos;
-
-    
-
-    
 
     fclose(f);
-    
 }
 void predicciones()
 {
@@ -214,6 +214,7 @@ void predicciones()
         fseek(f, pos, SEEK_SET);
         fwrite(&zona, sizeof(ZONA), 1, f);
         fflush(f);  // Sirve para guardar toda la información antes de usar nuevamente 'fread' en la siguiente iteración.
+        contZonas++;
     }
     fclose(f);
 
@@ -431,73 +432,254 @@ void listarRecomendacion()
     fclose(f);
 }
 
-void configuracion()
+void editar()
 {
+    int opc2;
 
-    FILE *f = fopen("REGISTRO.dat", "rb");
-    if (f == NULL)
-    {
-        printf("No se pudo abrir el archivo.\n");
-        return;
-    }
-    ZONA zona;
-    fread(&zona, sizeof(ZONA), 1, f);
-    
     printf("\n-------------------------------------------------------------------------------------\n");
-    printf("1. Nombres de contaminantes\n");
-    printf("2. Limites directrices de la OMS\n");
-    printf("3. Recomendaciones por contaminante\n");
-    printf("4. Salir\n");
-    
+    printf("1. Contaminacion actual\n");
+    printf("2. Historicos\n");
+    printf("3. Nombres de contaminantes\n");
+    printf("4. Limites directrices de la OMS\n");
+    printf("5. Recomendaciones por contaminante\n");
+    printf("6. Salir\n");
+
     printf("Escoga una opcion: ");
-    int opc2 = validarFloatRango(1,4);
-    
+    opc2 = validarFloatRango(1, 6);
+
     switch (opc2)
     {
     case 1:
-        for (int c = 0; c < CONTAMINANTES; c++)
+    {
+        FILE *f = fopen("REGISTRO.dat", "rb+");
+
+        if (f == NULL)
         {
-            printf("NOMBRE ACTUAL %d: %s", c+1, nameContaminantes[c]);
-            printf("NUEVO NOMBRE: ");
-            leerCadena(nameContaminantes[c],10);
+            printf("No se pudo abrir el archivo.\n");
+            return;
         }
-        break;
-    case 2:
+
+        ZONA zona;
+        long posiciones[ZONAS];
+        long pos;
+        int cont = 0;
+
+        rewind(f);
+
+        while (1)
+        {
+            pos = ftell(f);
+
+            if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+            {
+                break;
+            }
+
+            posiciones[cont] = pos;
+            printf("ZONA #%d: %s\n", cont + 1, zona.nombre);
+            cont++;
+        }
+
+        if (cont == 0)
+        {
+            printf("No hay zonas registradas.\n");
+            fclose(f);
+            return;
+        }
+
+        printf("Escoga una zona: ");
+        int opc = validarFloatRango(1, cont);
+
+        pos = posiciones[opc - 1];
+
+        fseek(f, pos, SEEK_SET);
+        fread(&zona, sizeof(ZONA), 1, f);
+
+        printf("\nZONA SELECCIONADA: %s\n", zona.nombre);
+        printf("REGISTRAR NUEVOS DATOS\n");
+
         for (int c = 0; c < CONTAMINANTES; c++)
         {
-            printf("LIMITE ACTUAL DE %s",nameContaminantes[c]);
+            printf("%s: ", nameContaminantes[c]);
+            zona.actual[c] = validarFloatRango(0, 50);
+        }
+
+        printf("TEMPERATURA: ");
+        zona.temperatura = validarFloatRango(0, 50);
+
+        printf("VIENTO: ");
+        zona.viento = validarFloatRango(0, 120);
+
+        printf("HUMEDAD: ");
+        zona.humedad = validarFloatRango(0, 100);
+
+        for (int c = 0; c < CONTAMINANTES; c++)
+        {
+            zona.promedio[c] = 0;
+            zona.prediccion[c] = 0;
+            strcpy(zona.estado[c], "PENDIENTE");
+        }
+
+        fseek(f, pos, SEEK_SET);
+        fwrite(&zona, sizeof(ZONA), 1, f);
+
+        fclose(f);
+
+        printf("Datos actualizados.\n");
+        printf("Ejecute nuevamente las predicciones.\n");
+
+        break;
+    }
+
+    case 2:
+    {
+        FILE *f = fopen("REGISTRO.dat", "rb+");
+
+        if (f == NULL)
+        {
+            printf("No se pudo abrir el archivo.\n");
+            return;
+        }
+
+        ZONA zona;
+        long posiciones[ZONAS];
+        long pos;
+        int cont = 0;
+
+        rewind(f);
+
+        while (1)
+        {
+            pos = ftell(f);
+
+            if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+            {
+                break;
+            }
+
+            posiciones[cont] = pos;
+
+            printf("ZONA #%d: %s\n", cont + 1, zona.nombre);
+
+            cont++;
+        }
+
+        if (cont == 0)
+        {
+            printf("No hay zonas registradas.\n");
+            fclose(f);
+            return;
+        }
+
+        printf("Escoga una zona: ");
+        int opc = validarFloatRango(1, cont);
+
+        pos = posiciones[opc - 1];
+
+        fseek(f, pos, SEEK_SET);
+        fread(&zona, sizeof(ZONA), 1, f);
+
+        printf("\nZONA SELECCIONADA: %s\n", zona.nombre);
+
+        printf("%-15s", "DIA");
+
+        for (int c = 0; c < CONTAMINANTES; c++)
+        {
+            printf("%-15s ", nameContaminantes[c]);
+        }
+
+        for (int d = 0; d < DIAS; d++)
+        {
+            printf("\n%-15d", d + 1);
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                printf("%-15.2f ", zona.historicos[d][c]);
+            }
+        }
+
+        printf("\nEscoga el dia: ");
+        int dia = validarFloatRango(1, DIAS);
+
+        printf("EDITAR HISTORICOS DEL DIA %d\n", dia);
+
+        for (int c = 0; c < CONTAMINANTES; c++)
+        {
+            printf("%s: ", nameContaminantes[c]);
+            zona.historicos[dia - 1][c] = validarFloatRango(0, 50);
+        }
+
+        for (int c = 0; c < CONTAMINANTES; c++)
+        {
+            zona.promedio[c] = 0;
+            zona.prediccion[c] = 0;
+            strcpy(zona.estado[c], "PENDIENTE");
+        }
+
+        fseek(f, pos, SEEK_SET);
+        fwrite(&zona, sizeof(ZONA), 1, f);
+
+        fclose(f);
+
+        printf("Historico actualizados.\n");
+        printf("Ejecute nuevamente las predicciones.\n");
+        break;
+    }
+
+    case 3:
+    {
+        for (int c = 0; c < CONTAMINANTES; c++)
+        {
+            printf("NOMBRE ACTUAL %d: %s\n", c + 1, nameContaminantes[c]);
+            printf("NUEVO NOMBRE: ");
+            leerCadena(nameContaminantes[c], 10);
+        }
+
+        break;
+    }
+
+    case 4:
+    {
+        for (int c = 0; c < CONTAMINANTES; c++)
+        {
+            printf("LIMITE ACTUAL DE %s: %.2f\n", nameContaminantes[c], limOMS[c]);
             printf("LIMITE NUEVO: ");
             limOMS[c] = validarFloatRango(0, 100);
         }
+
         break;
-    case 3:
+    }
+
+    case 5:
+    {
         for (int c = 0; c < CONTAMINANTES; c++)
         {
-            printf("RECOMENDACION ACTUAL DE %s", recomContaminantes[c]);
+            printf("RECOMENDACION ACTUAL DE %s: %s\n", nameContaminantes[c], recomContaminantes[c]);
             printf("NUEVA RECOMENDACION: ");
-            leerCadena(recomContaminantes[c], 50);
+            leerCadena(recomContaminantes[c], 100);
         }
-            break;
-    case 4:
-        fclose(f);
-        return;
+
         break;
+    }
+
+    case 6:
+        return;
 
     default:
         break;
-        
-    
     }
-    fclose(f);
 }
+
 void listarHistoricos()
 {
     FILE *f = fopen("REGISTRO.dat", "rb");
+
     if (f == NULL)
     {
         printf("No se pudo abrir el archivo.\n");
         return;
     }
+
     ZONA zona;
 
     while (1)
@@ -512,16 +694,15 @@ void listarHistoricos()
         printf("\n-------------------------------------------------------------------------------------\n");
 
         printf("%-15s", "DIA");
-        
+
         for (int c = 0; c < CONTAMINANTES; c++)
         {
             printf("%-15s ", nameContaminantes[c]);
         }
 
-      
         for (int d = 0; d < DIAS; d++)
         {
-            printf("\n%-15d", d+1);
+            printf("\n%-15d", d + 1);
 
             for (int c = 0; c < CONTAMINANTES; c++)
             {
@@ -529,30 +710,36 @@ void listarHistoricos()
             }
         }
     }
+
     printf("\n-------------------------------------------------------------------------------------\n");
+
     fclose(f);
 }
 void generarReporte()
-{   
-    FILE *r = fopen("REGISTRO.dat", "rb");  // r de REGISTRO   
+{
+    FILE *r = fopen("REGISTRO.dat", "rb");  // Archivo de registros
+
     if (r == NULL)
     {
-        printf("No se pudo abrir el archivo.\n");
+        printf("No se pudo abrir el archivo REGISTRO.dat.\n");
         return;
     }
 
-    FILE *f = fopen("REPORTE.txt", "w");
+    FILE *f = fopen("REPORTE.txt", "w");    // Archivo de reporte
+
     if (f == NULL)
     {
-        printf("No se pudo abrir el archivo.\n");
+        printf("No se pudo crear el archivo REPORTE.txt.\n");
+        fclose(r);
         return;
     }
+
     ZONA zona;
     int aux;
-    int flag;
+    int totalZonas = 0;
 
-    fprintf(f, "REPORTE DEL SISTEMA DE MONITOREO DE CONTAMINACION DE QUITO");
-    fprintf(f, "\n-------------------------------------------------------------------------------------\n");
+    fprintf(f, "REPORTE DEL SISTEMA DE MONITOREO DE CONTAMINACION DE QUITO\n");
+    fprintf(f, "-------------------------------------------------------------------------------------\n");
 
     fprintf(f, "LIMITES USADOS\n");
 
@@ -562,18 +749,17 @@ void generarReporte()
     }
 
     while (1)
-    {   
-        aux = 0;
-        flag = 0;
-
+    {
         if (fread(&zona, sizeof(ZONA), 1, r) != 1)
         {
             break;
         }
 
+        totalZonas++;
+
         fprintf(f, "\n-------------------------------------------------------------------------------------\n");
-        fprintf(f, "ZONA: %s", zona.nombre);
-        fprintf(f, "\n-------------------------------------------------------------------------------------\n");
+        fprintf(f, "ZONA: %s\n", zona.nombre);
+        fprintf(f, "-------------------------------------------------------------------------------------\n");
 
         fprintf(f, "DATOS CLIMATICOS\n");
         fprintf(f, "Temperatura: %.2f\n", zona.temperatura);
@@ -583,24 +769,36 @@ void generarReporte()
         fprintf(f, "\n");
 
         fprintf(f, "CONTAMINACION ACTUAL\n");
-        fprintf(f, "%-20s %-20s %-20s %-20s\n", "CONTAMINANTE", "ACTUAL", "LIMITE", "ESTADO");
+        fprintf(f, "%-20s %-20s %-20s %-20s\n",
+                "CONTAMINANTE", "ACTUAL", "LIMITE", "ESTADO");
 
         for (int c = 0; c < CONTAMINANTES; c++)
         {
-            fprintf(f, "%-20s %-20.2f %-20.2f %-20s \n", nameContaminantes[c],
+            fprintf(f, "%-20s %-20.2f %-20.2f ",
+                    nameContaminantes[c],
                     zona.actual[c],
-                    limOMS[c],
-                    zona.estado[c]);
+                    limOMS[c]);
+
+            if (zona.actual[c] > limOMS[c])
+            {
+                fprintf(f, "%-20s\n", "ALERTA");
+            }
+            else
+            {
+                fprintf(f, "%-20s\n", "NORMAL");
+            }
         }
 
         fprintf(f, "\n");
 
         fprintf(f, "PROMEDIOS Y PREDICCIONES\n");
-        fprintf(f, "%-20s %-20s %-20s %-20s %-20s\n", "CONTAMINANTE", "PROMEDIO", "PREDICCION", "LIMITE", "ESTADO");
+        fprintf(f, "%-20s %-20s %-20s %-20s %-20s\n",
+                "CONTAMINANTE", "PROMEDIO", "PREDICCION", "LIMITE", "ESTADO");
 
         for (int c = 0; c < CONTAMINANTES; c++)
         {
-            fprintf(f, "%-20s %-20.2f %-20.2f %-20.2f %-20s\n", nameContaminantes[c],
+            fprintf(f, "%-20s %-20.2f %-20.2f %-20.2f %-20s\n",
+                    nameContaminantes[c],
                     zona.promedio[c],
                     zona.prediccion[c],
                     limOMS[c],
@@ -609,28 +807,37 @@ void generarReporte()
 
         fprintf(f, "\n");
 
+        aux = 0;
+
         for (int c = 0; c < CONTAMINANTES; c++)
         {
-            
-            if ((zona.prediccion[c] > limOMS[c]) || (zona.promedio[c] > limOMS[c]))
+            if (zona.prediccion[c] > limOMS[c])
             {
-                aux += 1;
-                flag = 1;
+                aux++;
 
                 if (aux == 1)
                 {
                     fprintf(f, "RECOMENDACIONES\n");
                 }
 
-                fprintf(f, "%s: %s\n", nameContaminantes[c], recomContaminantes[c]);
+                fprintf(f, "%s: %s\n",
+                        nameContaminantes[c],
+                        recomContaminantes[c]);
             }
         }
-        if (flag != 1)
+
+        if (aux == 0)
         {
             fprintf(f, "SIN RECOMENDACIONES\n");
         }
-        
     }
+
+    fprintf(f, "\n-------------------------------------------------------------------------------------\n");
+    fprintf(f, "TOTAL DE ZONAS REGISTRADAS: %d\n", totalZonas);
+    fprintf(f, "-------------------------------------------------------------------------------------\n");
+
     fclose(f);
     fclose(r);
-}   
+
+    printf("Reporte generado con exito.\n");
+}

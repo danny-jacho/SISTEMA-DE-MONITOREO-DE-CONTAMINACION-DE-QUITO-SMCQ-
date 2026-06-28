@@ -33,7 +33,7 @@ float calcularPromedioPonderado(ZONA *zona, int contaminante);
 void generarRecomendaciones(int n);
 void listarAlertas();
 void listarRecomendacion();
-void configuracion();
+void editar();
 void listarHistoricos();
 void generarReporte();
 

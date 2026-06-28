@@ -16,10 +16,10 @@ Humedad: 75.00
 
 CONTAMINACION ACTUAL
 CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
-PM25                 18.00                15.00                ¡EN ALERTA!         
-NO2                  29.00                25.00                ¡EN ALERTA!         
-SO2                  36.00                40.00                ¡EN ALERTA!         
-CO2                  55.00                100.00               NORMAL               
+PM25                 18.00                15.00                ALERTA              
+NO2                  29.00                25.00                ALERTA              
+SO2                  36.00                40.00                NORMAL              
+CO2                  55.00                100.00               NORMAL              
 
 PROMEDIOS Y PREDICCIONES
 CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
@@ -30,7 +30,7 @@ CO2                  51.86                67.18                100.00           
 
 RECOMENDACIONES
 PM25: Evitar actividades al aire libre
-NO2: Reducir tráfico vehicular
+NO2: Reducir trafico vehicular
 SO2: Controlar emisiones industriales
 
 -------------------------------------------------------------------------------------
@@ -43,10 +43,10 @@ Humedad: 60.00
 
 CONTAMINACION ACTUAL
 CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
-PM25                 11.00                15.00                NORMAL               
-NO2                  18.00                25.00                NORMAL               
-SO2                  26.00                40.00                NORMAL               
-CO2                  34.00                100.00               NORMAL               
+PM25                 11.00                15.00                NORMAL              
+NO2                  18.00                25.00                NORMAL              
+SO2                  26.00                40.00                NORMAL              
+CO2                  34.00                100.00               NORMAL              
 
 PROMEDIOS Y PREDICCIONES
 CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
@@ -67,10 +67,10 @@ Humedad: 78.00
 
 CONTAMINACION ACTUAL
 CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
-PM25                 23.00                15.00                ¡EN ALERTA!         
-NO2                  31.00                25.00                ¡EN ALERTA!         
-SO2                  48.00                40.00                ¡EN ALERTA!         
-CO2                  65.00                100.00               NORMAL               
+PM25                 23.00                15.00                ALERTA              
+NO2                  31.00                25.00                ALERTA              
+SO2                  48.00                40.00                ALERTA              
+CO2                  65.00                100.00               NORMAL              
 
 PROMEDIOS Y PREDICCIONES
 CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
@@ -81,5 +81,9 @@ CO2                  61.86                79.68                100.00           
 
 RECOMENDACIONES
 PM25: Evitar actividades al aire libre
-NO2: Reducir tráfico vehicular
+NO2: Reducir trafico vehicular
 SO2: Controlar emisiones industriales
+
+-------------------------------------------------------------------------------------
+TOTAL DE ZONAS REGISTRADAS: 3
+-------------------------------------------------------------------------------------

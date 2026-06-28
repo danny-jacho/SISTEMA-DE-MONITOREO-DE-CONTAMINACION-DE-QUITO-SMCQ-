@@ -29,7 +29,7 @@ int main (int argc, char *argv[]) {
             listarRecomendacion();
             break;
         case 6:
-            configuracion();
+            editar();
             break;
         case 7:
             generarReporte();
