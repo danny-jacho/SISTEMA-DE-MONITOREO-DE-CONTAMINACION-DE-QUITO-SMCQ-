@@ -109,13 +109,13 @@ void crear()
         }
     }
 
-    printf("TEMPERATURA: ");
+    printf("TEMPERATURA (C): ");
     zona.temperatura = validarFloatRango(0,50);
 
-    printf("VIENTO: ");
+    printf("VIENTO (km/h): ");
     zona.viento = validarFloatRango(0,120);
 
-    printf("HUMEDAD: ");
+    printf("HUMEDAD (%%): ");
     zona.humedad = validarFloatRango(0,100);
 
     printf("\n-------------------------------------------------------------------------------------\n");
@@ -759,7 +759,7 @@ void generarReporte()
 
     for (int c = 0; c < CONTAMINANTES; c++)
     {
-        fprintf(f, "%s: %.2f\n", nameContaminantes[c], limOMS[c]);
+        fprintf(f, "%-10s %-10.2f\n", nameContaminantes[c], limOMS[c]);
     }
 
     while (1)
@@ -776,14 +776,14 @@ void generarReporte()
         fprintf(f, "-------------------------------------------------------------------------------------\n");
 
         fprintf(f, "DATOS CLIMATICOS\n");
-        fprintf(f, "Temperatura: %.2f\n", zona.temperatura);
-        fprintf(f, "Viento: %.2f\n", zona.viento);
-        fprintf(f, "Humedad: %.2f\n", zona.humedad);
+        fprintf(f, "%-15s %.2f C\n","Temperatura", zona.temperatura);
+        fprintf(f, "%-15s %.2f km/h\n","Viento", zona.viento);
+        fprintf(f, "%-15s %.2f %%\n","Humedad", zona.humedad);
 
         fprintf(f, "\n");
 
         fprintf(f, "CONTAMINACION ACTUAL\n");
-        fprintf(f, "%-20s %-20s %-20s %-20s\n",
+        fprintf(f, "%-20s %-20s %-20s %-20s\n", 
                 "CONTAMINANTE", "ACTUAL", "LIMITE", "ESTADO");
 
         for (int c = 0; c < CONTAMINANTES; c++)
