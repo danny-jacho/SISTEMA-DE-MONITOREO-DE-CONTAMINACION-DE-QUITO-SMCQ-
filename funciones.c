@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-long posZonas[ZONAS];
-int contZonas = 1;
+int contZonas = 0;
 
 float limOMS [CONTAMINANTES] = {15,
                                 25,
@@ -82,6 +81,12 @@ int menu()
 }
 void crear()
 {
+    if (contZonas >= 5)
+    {
+        printf("Limite de zonas alcanzado.\n");
+        return;
+    }
+    
     ZONA zona;
     int opc;
     int flagR = 0;
@@ -153,7 +158,7 @@ void crear()
 
 }
 void guardar(ZONA *zona)
-{
+{   
     FILE *f = fopen("REGISTRO.dat", "ab");
     if (f == NULL)
     {
@@ -162,8 +167,9 @@ void guardar(ZONA *zona)
     }
 
     fwrite(zona, sizeof(ZONA), 1, f);
-
     fclose(f);
+
+    contZonas++;
 }
 void predicciones()
 {
@@ -223,7 +229,6 @@ void predicciones()
         fseek(f, pos, SEEK_SET);
         fwrite(&zona, sizeof(ZONA), 1, f);
         fflush(f);  // Sirve para guardar toda la información antes de usar nuevamente 'fread' en la siguiente iteración.
-        contZonas++;
     }
     fclose(f);
 
