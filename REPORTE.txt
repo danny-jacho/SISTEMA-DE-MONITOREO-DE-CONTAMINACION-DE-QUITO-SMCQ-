@@ -4,86 +4,59 @@ LIMITES USADOS
 PM25: 15.00
 NO2: 25.00
 SO2: 40.00
-CO2: 100.00
+CO2: 40.00
 
 -------------------------------------------------------------------------------------
-ZONA: CENTRO
--------------------------------------------------------------------------------------
-DATOS CLIMATICOS
-Temperatura: 31.00
-Viento: 1.50
-Humedad: 75.00
-
-CONTAMINACION ACTUAL
-CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
-PM25                 18.00                15.00                ALERTA              
-NO2                  29.00                25.00                ALERTA              
-SO2                  36.00                40.00                NORMAL              
-CO2                  55.00                100.00               NORMAL              
-
-PROMEDIOS Y PREDICCIONES
-CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
-PM25                 15.86                21.43                15.00                ¡EN ALERTA!        
-NO2                  26.86                35.18                25.00                ¡EN ALERTA!        
-SO2                  37.86                45.93                40.00                ¡EN ALERTA!        
-CO2                  51.86                67.18                100.00               NORMAL              
-
-RECOMENDACIONES
-PM25: Evitar actividades al aire libre
-NO2: Reducir trafico vehicular
-SO2: Controlar emisiones industriales
-
--------------------------------------------------------------------------------------
-ZONA: NORTE
+ZONA: FLORESTA 
 -------------------------------------------------------------------------------------
 DATOS CLIMATICOS
-Temperatura: 24.00
-Viento: 5.00
+Temperatura: 40.00
+Viento: 20.00
 Humedad: 60.00
 
 CONTAMINACION ACTUAL
 CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
-PM25                 11.00                15.00                NORMAL              
-NO2                  18.00                25.00                NORMAL              
-SO2                  26.00                40.00                NORMAL              
-CO2                  34.00                100.00               NORMAL              
+PM25                 40.00                15.00                ALERTA              
+NO2                  35.00                25.00                ALERTA              
+SO2                  30.00                40.00                NORMAL              
+CO2                  40.00                40.00                NORMAL              
 
 PROMEDIOS Y PREDICCIONES
 CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
-PM25                 11.86                11.34                15.00                NORMAL              
-NO2                  18.86                18.34                25.00                NORMAL              
-SO2                  26.86                26.34                40.00                NORMAL              
-CO2                  34.86                34.34                100.00               NORMAL              
-
-SIN RECOMENDACIONES
-
--------------------------------------------------------------------------------------
-ZONA: SUR
--------------------------------------------------------------------------------------
-DATOS CLIMATICOS
-Temperatura: 33.00
-Viento: 1.20
-Humedad: 78.00
-
-CONTAMINACION ACTUAL
-CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
-PM25                 23.00                15.00                ALERTA              
-NO2                  31.00                25.00                ALERTA              
-SO2                  48.00                40.00                ALERTA              
-CO2                  65.00                100.00               NORMAL              
-
-PROMEDIOS Y PREDICCIONES
-CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
-PM25                 20.86                27.68                15.00                ¡EN ALERTA!        
-NO2                  29.86                38.18                25.00                ¡EN ALERTA!        
-SO2                  44.86                58.43                40.00                ¡EN ALERTA!        
-CO2                  61.86                79.68                100.00               NORMAL              
+PM25                 46.67                40.53                15.00                ¡EN ALERTA!        
+NO2                  46.67                37.68                25.00                ¡EN ALERTA!        
+SO2                  46.67                34.83                40.00                NORMAL              
+CO2                  50.00                41.80                40.00                ¡EN ALERTA!        
 
 RECOMENDACIONES
 PM25: Evitar actividades al aire libre
 NO2: Reducir trafico vehicular
-SO2: Controlar emisiones industriales
+CO2: Reducir congestion y mejorar ventilacion urbana
 
 -------------------------------------------------------------------------------------
-TOTAL DE ZONAS REGISTRADAS: 3
+ZONA: KENNEDY
+-------------------------------------------------------------------------------------
+DATOS CLIMATICOS
+Temperatura: 20.00
+Viento: 30.00
+Humedad: 40.00
+
+CONTAMINACION ACTUAL
+CONTAMINANTE         ACTUAL               LIMITE               ESTADO              
+PM25                 10.00                15.00                NORMAL              
+NO2                  10.00                25.00                NORMAL              
+SO2                  10.00                40.00                NORMAL              
+CO2                  10.00                40.00                NORMAL              
+
+PROMEDIOS Y PREDICCIONES
+CONTAMINANTE         PROMEDIO             PREDICCION           LIMITE               ESTADO              
+PM25                 10.00                9.00                 15.00                NORMAL              
+NO2                  10.00                9.00                 25.00                NORMAL              
+SO2                  10.00                9.00                 40.00                NORMAL              
+CO2                  10.00                9.00                 40.00                NORMAL              
+
+SIN RECOMENDACIONES
+
+-------------------------------------------------------------------------------------
+TOTAL DE ZONAS REGISTRADAS: 2
 -------------------------------------------------------------------------------------

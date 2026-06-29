@@ -9,7 +9,7 @@ int contZonas = 1;
 float limOMS [CONTAMINANTES] = {15,
                                 25,
                                 40,
-                                100};
+                                40};
 
 char nameContaminantes [CONTAMINANTES][10] =
 {"PM25", "NO2", "SO2", "CO2"};
@@ -71,7 +71,7 @@ int menu()
     printf("3. Listar alertas \n");
     printf("4. Listar historicos \n");
     printf("5. Listar recomendaciones \n");
-    printf("6. Configuración \n");
+    printf("6. Editar \n");
     printf("7. Generar reporte\n");
     printf("8. Salir\n");
     printf(">> ");
@@ -84,6 +84,7 @@ void crear()
 {
     ZONA zona;
     int opc;
+    int flagR = 0;
 
     printf("\n-------------------------------------------------------------------------------------\n");
 
@@ -98,7 +99,8 @@ void crear()
 
         if (zona.actual[c] > limOMS[c])
         {
-            printf("%-15s", "¡ALERTA! NIVEL POR ENCIMA DEL LIMITE");
+            printf("%-15s", "¡ALERTA! NIVEL POR ENCIMA DEL LIMITE\n");
+            flagR = 1;
         }
     }
 
@@ -114,7 +116,10 @@ void crear()
     printf("\n-------------------------------------------------------------------------------------\n");
 
     printf("HISTORICOS: \n");
-    for (int i = 0; i < DIAS; i++)
+    printf("CANTIDAD DE DIAS A REGISTRAR: ");
+    zona.dias = validarFloatRango(1, MAX_DIAS);
+
+    for (int i = 0; i < zona.dias; i++)
     {
         printf("DIA %d\n", i+1);
 
@@ -135,14 +140,16 @@ void crear()
     }
     guardar(&zona);
 
-    printf("¿Desea ver las recomendaciones? 1.SI/2.NO");
-    opc = validarFloatRango(1,2);
-    if (opc == 1)
+    if (flagR == 1)
     {
-        generarRecomendaciones(1);
+        printf("¿Desea ver las recomendaciones? 1.SI/2.NO: ");
+        opc = validarFloatRango(1,2);
+        if (opc == 1)
+        {
+            generarRecomendaciones(1);
+        }
+        
     }
-    
-
 
 }
 void guardar(ZONA *zona)
@@ -189,6 +196,8 @@ void predicciones()
         printf("ZONA: %s", zona.nombre);
         printf("\n-------------------------------------------------------------------------------------\n");
 
+        printf("%-20s %-20s %-20s\n", "CONTAMINANTE", "NIVEL", "LIMITE");
+
         for (int c = 0; c < CONTAMINANTES; c++)
         {
             zona.promedio[c] = calcularPromedioPonderado(&zona, c);
@@ -197,7 +206,7 @@ void predicciones()
 
             zona.prediccion[c] = base * factor;
 
-            printf("%-10s %-10.2f", nameContaminantes[c], zona.prediccion[c]);
+            printf("%-20s %-20.2f %-20.2f", nameContaminantes[c], zona.prediccion[c], limOMS[c]);
 
             if (zona.prediccion[c] > limOMS[c])
             {   
@@ -266,7 +275,7 @@ float calcularPromedioPonderado(ZONA *zona, int contaminante)
     float sumaPesos = 0;
     int peso;
 
-    for (int i = 0; i < DIAS; i++)
+    for (int i = 0; i < zona->dias; i++)
     {
         peso = i + 1;
 
@@ -588,7 +597,7 @@ void editar()
             printf("%-15s ", nameContaminantes[c]);
         }
 
-        for (int d = 0; d < DIAS; d++)
+        for (int d = 0; d < zona.dias; d++)
         {
             printf("\n%-15d", d + 1);
 
@@ -599,7 +608,7 @@ void editar()
         }
 
         printf("\nEscoga el dia: ");
-        int dia = validarFloatRango(1, DIAS);
+        int dia = validarFloatRango(1, zona.dias);
 
         printf("EDITAR HISTORICOS DEL DIA %d\n", dia);
 
@@ -700,7 +709,7 @@ void listarHistoricos()
             printf("%-15s ", nameContaminantes[c]);
         }
 
-        for (int d = 0; d < DIAS; d++)
+        for (int d = 0; d < zona.dias; d++)
         {
             printf("\n%-15d", d + 1);
 

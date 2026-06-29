@@ -1,5 +1,5 @@
 #define ZONAS 5
-#define DIAS 30
+#define MAX_DIAS 30
 #define CONTAMINANTES 4
 
 
@@ -7,7 +7,9 @@ typedef struct
 {
     char nombre[20];
 
-    float historicos[DIAS][CONTAMINANTES];
+    int dias;
+
+    float historicos[MAX_DIAS][CONTAMINANTES];
     float promedio [CONTAMINANTES];
     float actual [CONTAMINANTES];
     float prediccion [CONTAMINANTES];
