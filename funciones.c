@@ -53,7 +53,7 @@ float validarFloatRango(float a, float b)
 
         if (aux != 1 || n < a || n > b)
         {
-            printf("Error: El valor ingresado es incorrecto\n");
+            printf("Error: El valor ingresado esta fuera del rango de %.2f a %.2f\n", a, b);
             printf(">> ");
         }
 
@@ -110,10 +110,10 @@ void crear()
     }
 
     printf("TEMPERATURA (C): ");
-    zona.temperatura = validarFloatRango(0,50);
+    zona.temperatura = validarFloatRango(0,35);
 
     printf("VIENTO (km/h): ");
-    zona.viento = validarFloatRango(0,120);
+    zona.viento = validarFloatRango(0,60);
 
     printf("HUMEDAD (%%): ");
     zona.humedad = validarFloatRango(0,100);
@@ -151,7 +151,7 @@ void crear()
         opc = validarFloatRango(1,2);
         if (opc == 1)
         {
-            generarRecomendaciones(1);
+            generarRecomendaciones();
         }
         
     }
@@ -434,6 +434,7 @@ void generarRecomendaciones()
         break;
 
     case 2:
+        aux = 0;
         printf("\n-------------------------------------------------------------------------------------\n");
         printf("RECOMENDACIONES PROMEDIO");
         printf("\n-------------------------------------------------------------------------------------\n");
@@ -493,6 +494,7 @@ void generarRecomendaciones()
         break;
     
     case 3:
+        aux = 0;
         printf("\n-------------------------------------------------------------------------------------\n");
         printf("RECOMENDACIONES PREDICTIVAS");
         printf("\n-------------------------------------------------------------------------------------\n");
@@ -848,10 +850,10 @@ void editar()
         }
 
         printf("TEMPERATURA (C): ");
-        zona.temperatura = validarFloatRango(0, 50);
+        zona.temperatura = validarFloatRango(0, 35);
 
         printf("VIENTO (km/h): ");
-        zona.viento = validarFloatRango(0, 120);
+        zona.viento = validarFloatRango(0, 60);
 
         printf("HUMEDAD (%%): ");
         zona.humedad = validarFloatRango(0, 100);
