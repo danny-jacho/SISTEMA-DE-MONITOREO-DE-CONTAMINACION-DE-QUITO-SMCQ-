@@ -42,7 +42,7 @@ int main (int argc, char *argv[]) {
             break;
         }
         
-        printf("¿Desea continuar? 1.SI/2.NO: ");
+        printf("\n¿Desea continuar? 1.SI/2.NO: ");
         opc2 = validarFloatRango(1, 2);
     }while( opc2 == 1);
 
