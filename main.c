@@ -26,7 +26,7 @@ int main (int argc, char *argv[]) {
             listarHistoricos();
             break;
         case 5:
-            listarRecomendacion();
+            generarRecomendaciones();
             break;
         case 6:
             editar();

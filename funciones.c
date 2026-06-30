@@ -186,17 +186,66 @@ void predicciones()
 
     }
     
+    int opc2;
 
     printf("\n-------------------------------------------------------------------------------------\n");
-    printf("PREDICCIONES");
+    printf("PREDICCIONES DENTRO DE LAS PROXIMAS 24 HORAS");
     printf("\n-------------------------------------------------------------------------------------\n");
-    while (1)
-    {
-        pos = ftell(f);
-        if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+
+    printf("\n1. Ver todas\n");
+    printf("2. Ver por zona\n");
+    printf(">> ");
+    opc2 = validarFloatRango(1,2);
+    if (opc2 == 1)
+    {  
+        while (1)
         {
-            break;
+            pos = ftell(f);
+            if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+            {
+                break;
+            }
+    
+            factor = calcularFactor(&zona);
+            printf("ZONA: %s", zona.nombre);
+            printf("\n-------------------------------------------------------------------------------------\n");
+    
+            printf("%-20s %-20s %-20s\n", "CONTAMINANTE", "NIVEL", "LIMITE");
+    
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                zona.promedio[c] = calcularPromedioPonderado(&zona, c);
+    
+                base = zona.actual[c] * 0.6 + zona.promedio[c] * 0.4;
+    
+                zona.prediccion[c] = base * factor;
+    
+                printf("%-20s %-20.2f %-20.2f", nameContaminantes[c], zona.prediccion[c], limOMS[c]);
+    
+                if (zona.prediccion[c] > limOMS[c])
+                {   
+                    strcpy(zona.estado[c], "¡EN ALERTA!");
+                    printf("%-15s", "¡ALERTA! NIVEL POR ENCIMA DEL LIMITE");
+                }else{
+                    strcpy(zona.estado[c], "NORMAL");
+                    printf("%-15s", "NORMAL");
+                }
+                printf("\n");
+            }
+            
+            printf("\n-------------------------------------------------------------------------------------\n");
+    
+            fseek(f, pos, SEEK_SET);
+            fwrite(&zona, sizeof(ZONA), 1, f);
+            fflush(f);  // Sirve para guardar toda la información antes de usar nuevamente 'fread' en la siguiente iteración.
         }
+    }
+
+    if (opc2 == 2)
+    {
+        long pos = seleccionarZona(f);
+        fseek(f, pos, SEEK_SET);
+        fread(&zona, sizeof(ZONA), 1, f);
 
         factor = calcularFactor(&zona);
         printf("ZONA: %s", zona.nombre);
@@ -215,28 +264,33 @@ void predicciones()
             printf("%-20s %-20.2f %-20.2f", nameContaminantes[c], zona.prediccion[c], limOMS[c]);
 
             if (zona.prediccion[c] > limOMS[c])
-            {   
+            {
                 strcpy(zona.estado[c], "¡EN ALERTA!");
                 printf("%-15s", "¡ALERTA! NIVEL POR ENCIMA DEL LIMITE");
-            }else{
+            }
+            else
+            {
                 strcpy(zona.estado[c], "NORMAL");
+                printf("%-15s", "NORMAL");
             }
             printf("\n");
         }
-        
+
         printf("\n-------------------------------------------------------------------------------------\n");
 
         fseek(f, pos, SEEK_SET);
         fwrite(&zona, sizeof(ZONA), 1, f);
-        fflush(f);  // Sirve para guardar toda la información antes de usar nuevamente 'fread' en la siguiente iteración.
+        fflush(f); // Sirve para guardar toda la información antes de usar nuevamente 'fread' en la siguiente iteración.
     }
+    
+    
     fclose(f);
 
     printf("¿Desea ver las recomendaciones? 1.SI/2.NO: ");
     int opc = validarFloatRango(1,2);
     if (opc == 1)
     {
-        generarRecomendaciones(2);
+        generarRecomendaciones();
     }
 
     
@@ -290,7 +344,7 @@ float calcularPromedioPonderado(ZONA *zona, int contaminante)
 
     return suma / sumaPesos;
 }
-void generarRecomendaciones(int n)
+void generarRecomendaciones()
 {
     FILE *f = fopen("REGISTRO.dat", "rb");
     if (f == NULL)
@@ -300,23 +354,69 @@ void generarRecomendaciones(int n)
     }
 
     int aux;
+    int opc;
+    int opc2;
+    int flag;
+    ZONA zona;
 
-    while (1)
-    {   
-        ZONA zona;
+    printf("1. Ver recomendaciones actuales\n");
+    printf("2. Ver recomendaciones promedio\n");
+    printf("3. Ver recomendaciones predictivas\n");
+    printf(">> ");
+    opc = validarFloatRango(1,3);
+
+    printf("\n1. Ver todas\n");
+    printf("2. Ver por zona\n");
+    printf(">> ");
+    opc2 = validarFloatRango(1,2);
+
+    switch (opc)
+    {
+    case 1:
         aux = 0;
-        if (fread(&zona, sizeof(ZONA), 1, f) != 1)
-        {
-            break;
-        }
+        printf("\n-------------------------------------------------------------------------------------\n");
+        printf("RECOMENDACIONES ACTUALES");
+        printf("\n-------------------------------------------------------------------------------------\n");
 
-        for (int c = 0; c < CONTAMINANTES; c++)
+        if (opc2 == 1)
         {
-            switch (n)
+            while (1)
             {
-            case 1:
+                if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+                {
+                    break;
+                }
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    if (zona.actual[c] > limOMS[c])
+                    {
+                        aux += 1;
+                        if (aux == 1)
+                        {
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%s", zona.nombre);
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%-20s %-20s\n", "CONTAMINANTE", "RECOMENDACION");
+                        }
+
+                        printf("%-20s %-20s\n", nameContaminantes[c], recomContaminantes[c]);
+                    }
+                }
+            }
+        }
+        if (opc2 == 2)
+        {
+            long pos;
+            
+            pos = seleccionarZona(f);
+
+            fseek(f, pos, SEEK_SET);
+            fread(&zona, sizeof(ZONA), 1, f);
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
                 if (zona.actual[c] > limOMS[c])
-                {   
+                {
                     aux += 1;
                     if (aux == 1)
                     {
@@ -325,13 +425,130 @@ void generarRecomendaciones(int n)
                         printf("\n-------------------------------------------------------------------------------------\n");
                         printf("%-20s %-20s\n", "CONTAMINANTE", "RECOMENDACION");
                     }
-                    
+    
                     printf("%-20s %-20s\n", nameContaminantes[c], recomContaminantes[c]);
-
                 }
-                break;
+            }
+            
+        }
+        break;
 
-            case 2:
+    case 2:
+        printf("\n-------------------------------------------------------------------------------------\n");
+        printf("RECOMENDACIONES PROMEDIO");
+        printf("\n-------------------------------------------------------------------------------------\n");
+
+        if (opc2 == 1)
+        {
+            while (1)
+            {
+                if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+                {
+                    break;
+                }
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    if (zona.promedio[c] > limOMS[c])
+                    {
+                        aux += 1;
+                        if (aux == 1)
+                        {
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%s", zona.nombre);
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%-20s %-20s\n", "CONTAMINANTE", "RECOMENDACION");
+                        }
+
+                        printf("%-20s %-20s\n", nameContaminantes[c], recomContaminantes[c]);
+                    }
+                }
+            }
+        }
+        if (opc2 == 2)
+        {
+            long pos;
+
+            pos = seleccionarZona(f);
+
+            fseek(f, pos, SEEK_SET);
+            fread(&zona, sizeof(ZONA), 1, f);
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                if (zona.promedio[c] > limOMS[c])
+                {
+                    aux += 1;
+                    if (aux == 1)
+                    {
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%s", zona.nombre);
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%-20s %-20s\n", "CONTAMINANTE", "RECOMENDACION");
+                    }
+
+                    printf("%-20s %-20s\n", nameContaminantes[c], recomContaminantes[c]);
+                }
+            }
+        }
+        break;
+    
+    case 3:
+        printf("\n-------------------------------------------------------------------------------------\n");
+        printf("RECOMENDACIONES PREDICTIVAS");
+        printf("\n-------------------------------------------------------------------------------------\n");
+
+        if (opc2 == 1)
+        {   
+            flag = 0;
+            while (1)
+            {
+                if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+                {
+                    break;
+                }
+                flag = 1;
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    if (zona.prediccion[c] > limOMS[c])
+                    {
+                        aux += 1;
+                        if (aux == 1)
+                        {
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%s", zona.nombre);
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%-20s %-20s\n", "CONTAMINANTE", "RECOMENDACION");
+                        }
+
+                        printf("%-20s %-20s\n", nameContaminantes[c], recomContaminantes[c]);
+                    }
+                }
+
+                if (flag == 0)
+                {
+                    printf("\nSin recomendaciones..\n");
+                    printf("Ejecute la función predicciones.\n");
+                }
+                
+            }
+        }
+        if (opc2 == 2)
+        {
+            long pos;
+            flag = 0;
+            pos = seleccionarZona(f);
+
+            fseek(f, pos, SEEK_SET);
+            fread(&zona, sizeof(ZONA), 1, f);
+  
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                if (strcmp(zona.estado[c], "PENDIENTE") == 0)
+                {
+                    printf("\nSin recomendaciones..\n");
+                    printf("Ejecute la función predicciones.\n");
+                }
                 if (zona.prediccion[c] > limOMS[c])
                 {
                     aux += 1;
@@ -342,16 +559,16 @@ void generarRecomendaciones(int n)
                         printf("\n-------------------------------------------------------------------------------------\n");
                         printf("%-20s %-20s\n", "CONTAMINANTE", "RECOMENDACION");
                     }
-                    
+
                     printf("%-20s %-20s\n", nameContaminantes[c], recomContaminantes[c]);
                 }
-                break;
-            default:
-                break;
             }
         }
-        aux = 0;
+        break;
+    default:
+        break;
     }
+    
     fclose(f);
 }
 void listarAlertas()
@@ -363,86 +580,226 @@ void listarAlertas()
         return;
     }
 
-    ZONA zona;
     int aux;
+    int opc;
+    int opc2;
+    int flag;
+    ZONA zona;
 
-    while (1)
-    {   
-        aux = 0;
-        if (fread(&zona, sizeof(ZONA), 1, f) != 1)
-        {
-            break;
-        }
+    printf("1. Ver alertas actuales\n");
+    printf("2. Ver alertas promedio\n");
+    printf("3. Ver alertas predictivas\n");
+    printf(">> ");
+    opc = validarFloatRango(1,3);
 
+    printf("\n1. Ver todas\n");
+    printf("2. Ver por zona\n");
+    printf(">>");
+    opc2 = validarFloatRango(1,2);
 
-
-        for (int c = 0; c < CONTAMINANTES; c++)
-        {
-            if (zona.prediccion[c] > limOMS[c])
-            {   
-                aux += 1;
-
-                if (aux == 1)
-                {
-                    printf("\n-------------------------------------------------------------------------------------\n");
-                    printf("%s\n", zona.nombre);
-                    printf("-------------------------------------------------------------------------------------\n");
-                    printf("%-15s %-15s\n", "CONTAMINANTE", "ESTADO");
-                }
-
-                printf("%-15s %-15s\n", nameContaminantes[c], zona.estado[c]);
-
-            }
-        }
-    }
-
-
-
-    printf("\n-------------------------------------------------------------------------------------\n");
-
-    fclose(f);
-}
-void listarRecomendacion()
-{
-    FILE *f = fopen("REGISTRO.dat", "rb");
-    if (f == NULL)
+    switch (opc)
     {
-        printf("No se pudo abrir el archivo.\n");
-        return;
-    }
-
-    ZONA zona;
-    int aux;
-    while (1)
-    {   
+    case 1:
         aux = 0;
-        if (fread(&zona, sizeof(ZONA), 1, f) != 1)
-        {
-            break;
-        }
+        printf("\n-------------------------------------------------------------------------------------\n");
+        printf("ALERTAS ACTUALES");
+        printf("\n-------------------------------------------------------------------------------------\n");
 
-        for (int c = 0; c < CONTAMINANTES; c++)
+        if (opc2 == 1)
         {
-            if (zona.prediccion[c] > limOMS[c])
+            while (1)
             {
-                aux += 1;
-                if (aux == 1)
+                if (fread(&zona, sizeof(ZONA), 1, f) != 1)
                 {
-                    printf("\n-------------------------------------------------------------------------------------\n");
-                    printf("%s\n", zona.nombre);
-                    printf("-------------------------------------------------------------------------------------\n");
-                    printf("%-15s %-50s\n", "CONTAMINANTE", "RECOMENDACION");
+                    break;
                 }
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    if (zona.actual[c] > limOMS[c])
+                    {
+                        aux += 1;
+                        if (aux == 1)
+                        {
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%s", zona.nombre);
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%-20s \n", "CONTAMINANTE");
+                        }
 
-                printf("%-15s %-50s\n", nameContaminantes[c], recomContaminantes[c]);
-
+                        printf("%-20s %-20s\n", nameContaminantes[c], "ALERTA");
+                    }
+                }
             }
         }
+        if (opc2 == 2)
+        {
+            long pos;
+            flag = 0;
+
+            pos = seleccionarZona(f);
+
+            fseek(f, pos, SEEK_SET);
+            fread(&zona, sizeof(ZONA), 1, f);
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                if (zona.actual[c] > limOMS[c])
+                {   
+                    flag = 1;
+                    aux += 1;
+                    if (aux == 1)
+                    {
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%s", zona.nombre);
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%-20s \n", "CONTAMINANTE");
+                    }
+    
+                    printf("%-20s %-20s\n", nameContaminantes[c], "ALERTA");
+                }
+            }
+            if (flag == 0)
+            {
+                printf("Sin alertas...\n");
+            }
+            
+        }
+        break;
+
+    case 2:
+        printf("\n-------------------------------------------------------------------------------------\n");
+        printf("ALERTAS PROMEDIO");
+        printf("\n-------------------------------------------------------------------------------------\n");
+
+        if (opc2 == 1)
+        {
+            while (1)
+            {
+                if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+                {
+                    break;
+                }
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    if (zona.promedio[c] > limOMS[c])
+                    {
+                        aux += 1;
+                        if (aux == 1)
+                        {
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%s", zona.nombre);
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%-20s \n", "CONTAMINANTE");
+                        }
+
+                        printf("%-20s %-20s\n", nameContaminantes[c], "ALERTA");
+                    }
+                }
+            }
+        }
+        if (opc2 == 2)
+        {
+            long pos;
+
+            pos = seleccionarZona(f);
+
+            fseek(f, pos, SEEK_SET);
+            fread(&zona, sizeof(ZONA), 1, f);
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                if (zona.promedio[c] > limOMS[c])
+                {
+                    aux += 1;
+                    if (aux == 1)
+                    {
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%s", zona.nombre);
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%-20s \n", "CONTAMINANTE");
+                    }
+
+                    printf("%-20s %-20s\n", nameContaminantes[c], "ALERTA");
+                }
+            }
+        }
+        break;
+    
+    case 3:
+        printf("\n-------------------------------------------------------------------------------------\n");
+        printf("ALERTAS PREDICTIVAS");
+        printf("\n-------------------------------------------------------------------------------------\n");
+
+        if (opc2 == 1)
+        {   
+            flag = 0;
+            while (1)
+            {
+                if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+                {
+                    break;
+                }
+
+                flag = 1;
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    if (zona.prediccion[c] > limOMS[c])
+                    {
+                        aux += 1;
+                        if (aux == 1)
+                        {
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%s", zona.nombre);
+                            printf("\n-------------------------------------------------------------------------------------\n");
+                            printf("%-20s \n", "CONTAMINANTE");
+                        }
+
+                        printf("%-20s %-20s\n", nameContaminantes[c], "ALERTA");
+                    }
+                }
+
+                if (flag == 0)
+                {
+                    printf("\nSin alertas..\n");
+                }
+                
+            }
+        }
+        if (opc2 == 2)
+        {
+            long pos;
+            flag = 0;
+            pos = seleccionarZona(f);
+
+            fseek(f, pos, SEEK_SET);
+            fread(&zona, sizeof(ZONA), 1, f);          
+
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                if (strcmp(zona.estado[c], "PENDIENTE") == 0)
+                {
+                    printf("\nSin alertas..\n");
+                }
+                if (zona.prediccion[c] > limOMS[c])
+                {
+                    aux += 1;
+                    if (aux == 1)
+                    {
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%s", zona.nombre);
+                        printf("\n-------------------------------------------------------------------------------------\n");
+                        printf("%-20s \n", "CONTAMINANTE");
+                    }
+
+                    printf("%-20s %-20s\n", nameContaminantes[c], "ALERTA");
+                }
+            }
+        }
+        break;
+    default:
+        break;
     }
-
-
-    printf("\n-------------------------------------------------------------------------------------\n");
-
+    
     fclose(f);
 }
 
@@ -474,37 +831,9 @@ void editar()
         }
 
         ZONA zona;
-        long posiciones[ZONAS];
         long pos;
-        int cont = 0;
 
-        rewind(f);
-
-        while (1)
-        {
-            pos = ftell(f);
-
-            if (fread(&zona, sizeof(ZONA), 1, f) != 1)
-            {
-                break;
-            }
-
-            posiciones[cont] = pos;
-            printf("ZONA #%d: %s\n", cont + 1, zona.nombre);
-            cont++;
-        }
-
-        if (cont == 0)
-        {
-            printf("No hay zonas registradas.\n");
-            fclose(f);
-            return;
-        }
-
-        printf("Escoga una zona: ");
-        int opc = validarFloatRango(1, cont);
-
-        pos = posiciones[opc - 1];
+        pos = seleccionarZona(f);
 
         fseek(f, pos, SEEK_SET);
         fread(&zona, sizeof(ZONA), 1, f);
@@ -556,39 +885,11 @@ void editar()
         }
 
         ZONA zona;
-        long posiciones[ZONAS];
         long pos;
-        int cont = 0;
 
-        rewind(f);
 
-        while (1)
-        {
-            pos = ftell(f);
+        pos = seleccionarZona(f);
 
-            if (fread(&zona, sizeof(ZONA), 1, f) != 1)
-            {
-                break;
-            }
-
-            posiciones[cont] = pos;
-
-            printf("ZONA #%d: %s\n", cont + 1, zona.nombre);
-
-            cont++;
-        }
-
-        if (cont == 0)
-        {
-            printf("No hay zonas registradas.\n");
-            fclose(f);
-            return;
-        }
-
-        printf("Escoga una zona: ");
-        int opc = validarFloatRango(1, cont);
-
-        pos = posiciones[opc - 1];
 
         fseek(f, pos, SEEK_SET);
         fread(&zona, sizeof(ZONA), 1, f);
@@ -695,13 +996,55 @@ void listarHistoricos()
     }
 
     ZONA zona;
+    int opc2;
 
-    while (1)
+    printf("\n-------------------------------------------------------------------------------------\n");
+    printf("HISTORICOS");
+    printf("\n-------------------------------------------------------------------------------------\n");
+
+    printf("\n1. Ver todos\n");
+    printf("2. Ver por zona\n");
+    opc2 = validarFloatRango(1,2);
+
+    if (opc2 == 1)
     {
-        if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+        while (1)
         {
-            break;
+            if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+            {
+                break;
+            }
+    
+            printf("\n-------------------------------------------------------------------------------------\n");
+            printf("%s", zona.nombre);
+            printf("\n-------------------------------------------------------------------------------------\n");
+    
+            printf("%-15s", "DIA");
+    
+            for (int c = 0; c < CONTAMINANTES; c++)
+            {
+                printf("%-15s ", nameContaminantes[c]);
+            }
+    
+            for (int d = 0; d < zona.dias; d++)
+            {
+                printf("\n%-15d", d + 1);
+    
+                for (int c = 0; c < CONTAMINANTES; c++)
+                {
+                    printf("%-15.2f ", zona.historicos[d][c]);
+                }
+            }
         }
+    
+        printf("\n-------------------------------------------------------------------------------------\n");
+    }
+    if (opc2 == 2)
+    {
+        long pos = seleccionarZona(f);
+
+        fseek(f, pos, SEEK_SET);
+        fread(&zona, sizeof(ZONA), 1, f);
 
         printf("\n-------------------------------------------------------------------------------------\n");
         printf("%s", zona.nombre);
@@ -724,9 +1067,6 @@ void listarHistoricos()
             }
         }
     }
-
-    printf("\n-------------------------------------------------------------------------------------\n");
-
     fclose(f);
 }
 void generarReporte()
@@ -854,4 +1194,41 @@ void generarReporte()
     fclose(r);
 
     printf("Reporte generado con exito.\n");
+}
+long seleccionarZona(FILE *f)
+{
+    ZONA zona;
+    long posiciones[ZONAS];
+    long pos;
+    int cont = 0;
+    int opc;
+
+    rewind(f);
+
+    while (1)
+    {
+        pos = ftell(f);
+
+        if (fread(&zona, sizeof(ZONA), 1, f) != 1)
+        {
+            break;
+        }
+
+        posiciones[cont] = pos;
+
+        printf("ZONA #%d: %s\n", cont + 1, zona.nombre);
+
+        cont++;
+    }
+
+    if (cont == 0)
+    {
+        printf("No hay zonas registradas.\n");
+        return -1;
+    }
+
+    printf("Escoga una zona (#): ");
+    opc = validarFloatRango(1, cont);
+
+    return posiciones[opc - 1];
 }

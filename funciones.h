@@ -1,7 +1,7 @@
 #define ZONAS 5
 #define MAX_DIAS 30
 #define CONTAMINANTES 4
-
+#include <stdio.h>
 
 typedef struct 
 {
@@ -31,11 +31,11 @@ void guardar(ZONA *zona);
 void predicciones();
 float calcularFactor(ZONA *zona);
 float calcularPromedioPonderado(ZONA *zona, int contaminante);
-void generarRecomendaciones(int n);
+void generarRecomendaciones();
 void listarAlertas();
-void listarRecomendacion();
 void editar();
 void listarHistoricos();
 void generarReporte();
+long seleccionarZona(FILE *f);
 
 
